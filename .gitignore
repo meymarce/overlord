@@ -50,4 +50,4 @@ coverage.xml
 docs/_build/
 
 # Keep local config local
-local_settings.py
+overlord/settings/local.py
