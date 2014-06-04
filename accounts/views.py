@@ -17,7 +17,7 @@ class MyLoginView(LoginView):
 	
 	dirpath = os.path.join(settings.MEDIA_ROOT, str(form.get_user().pk))
 	if( not os.path.isdir(dirpath) ):
-	    os.mkdir(dirpath)
+	    os.makedirs(dirpath)
         if created:
 	    imageset_id.imageset_id_seq = imageset_id.imageset_id_seq + 1
 	    imageset_id.save()
