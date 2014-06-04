@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% comment %}
+{% extends request.is_ajax|yesno:"baseAjax.html","base.html" %}
+{% endcomment %}
+
+{% load bootstrap %}
+{% comment %}
+{% load ajaxRequest %}
+{% endcomment %}
+{% block title %}Edit imageset{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1">
+    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal" role="form">
+    {% csrf_token %}
+    {{ form|bootstrap_horizontal }}
+	<div class="btn-margin btn-right">
+	    <button type="submit" class="btn btn-success">Save</button>
+	    <a href="javascript:history.back()" class="btn btn-danger">Back</a>
+	</div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

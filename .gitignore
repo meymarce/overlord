@@ -48,3 +48,8 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+# Keep local config local
+overlord/settings/local.py
+data/
+
