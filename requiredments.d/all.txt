@@ -1,0 +1,6 @@
+django
+psycopg2
+pil
+django-bootstrap-form
+django-braces
+django-class-based-auth-views

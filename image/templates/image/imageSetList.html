@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% comment %}
+{% extends request.is_ajax|yesno:"baseAjax.html","base.html" %}
+{% endcomment %}
+
+{% load bootstrap %}
+{% load staticfiles %}
+{% comment %}
+{% load ajaxRequest %}
+{% endcomment %}
+{% block title %}Image list{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <a href="{{ imageset.get_upload_url }}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-cloud-upload">Upload</span></a>
+    <a href="{{ imageset.get_absolute_url }}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-th">Gallery</span></a>
+    <div class="table-responsive">
+    <table class="table table-striped" id="users">
+        <thead>
+	    <tr class="sortable">
+	        <th style="width: 300px;">
+                    ID
+	        </th>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Published
+                </th>
+                <th>
+                    Created at
+                </th>
+		{% if request.user.is_authenticated %}
+		<th>
+		    Actions
+		</th>
+		{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+	    {% for image in images %}
+	    <tr>
+		<td>
+		    {{ image.pk }}
+		</td>
+		<td>
+		    <a href="{{ image.get_image_url }}">
+			{{ image.title }}
+		    </a>
+		</td>
+		<td>
+		    <a href="{{ image.get_publish_url }}" class="btn btn-xs 
+			{% if image.published %}
+			    btn-success
+			{% else %}
+			    btn-danger
+			{% endif %}
+		    ">
+			<span class="glyphicon 
+			    {% if image.published %}
+				glyphicon-ok
+			    {% else %}
+				glyphicon-remove
+			    {% endif %}
+			">
+			</span>
+		    </a>
+		</td>
+		<td>
+		    {{ image.created_at }}
+		</td>
+		{% if request.user.is_authenticated and image.imageset.owner == request.user %}
+		<td>
+		    <a href="{{ image.get_edit_url }}" class="btn btn-xs btn-info">
+		        <span class="glyphicon glyphicon-pencil"></span>
+		    </a>
+		    <a href="{{ image.get_delete_url }}" class="btn btn-xs btn-danger">
+		        <span class="glyphicon glyphicon-remove"></span>
+		    </a>
+		</td>
+		{% endif %}
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
+    </div>
+    <div class="pagination">
+	<span class="step-links">
+	    {% if images.has_previous %}
+		<a href="../{{ images.previous_page_number }}/">previous</a>
+		 | 
+	    {% endif %}
+
+	    <span class="current">
+		Page {{ images.number }} of {{ images.paginator.num_pages }}
+	    </span>
+
+	    {% if images.has_next %}
+		 | 
+		<a href="../{{ images.next_page_number }}/">next</a>
+	    {% endif %}
+	</span>
+    </div>
+</div>
+{% endblock %}
+
+
+{% comment %}
+<form enctype="multipart/form-data" method="post" action="{{image.get__url}}" class="form-horizontal">
+  <!--<div class="white_box">-->
+    {% csrf_token %}
+    {{ form|bootstrap_horizontal }}
+  <!--</div>-->
+  <div class="btn-margin btn-right">
+    <button type="submit" class="btn btn-success">Speichern</button>
+    <a href="javascript:history.back()" class="btn btn-danger"> Zurück </a>
+  </div>
+</form>
+
+{% endblock %}
+{% endcomment %}

@@ -1,0 +1,80 @@
+/* ---- General stuff ---- */
+html, body {
+    height: 100%;
+    background-image: url(../img/bkgrnd.jpg);
+}
+
+/* ---- Image Clustering stuff ---- */
+
+@media (max-width: 767px) {
+    #images[data-columns]::before {
+	content: '2 .column.col-xs-6';
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    #images[data-columns]::before {
+	content: '3 .column.col-sm-4';
+    }
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+    #images[data-columns]::before {
+	content: '4 .column.col-md-3';
+    }
+}
+@media (min-width: 1200px) {
+    #images[data-columns]::before {
+    	content: '4 .column.col-lg-3';
+    }
+}
+
+.column {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+/* ---- classes ---- */
+
+div.row {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+}
+
+div.imagerow {
+    margin-left: -5px;
+    margin-right: -5px;
+    margin-bottom: 15px;
+}
+
+div.pagination {
+    float: none;
+    width: 100%;
+    text-align: center;
+}
+
+div.image {
+    margin-bottom: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow: hidden;
+    float: left;
+}
+
+img.gallery {
+    margin: auto;
+    width: 100%;
+}
+
+.white_box {
+    background-color: #EEEEEE;
+    padding: 10px;
+    border-width: 5px;
+}
+
+.btn-margin {
+	margin-top: 50px;
+}
+
+.btn-right {
+	float: right;
+}

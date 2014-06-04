@@ -11,12 +11,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 #BASE_DIR = os.path.dirname
-import django.conf.global_settings as DEFAULT_SETTINGS
-
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 PROJECT_PATH = BASE_DIR
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'data')
 
 APPS_BASE_NAME = ' '
 
@@ -63,9 +59,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-)
 
 ROOT_URLCONF = 'overlord.urls'
 

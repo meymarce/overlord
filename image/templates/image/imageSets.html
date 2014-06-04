@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% comment %}
+{% extends request.is_ajax|yesno:"baseAjax.html","base.html" %}
+{% endcomment %}
+
+{% load bootstrap %}
+{% load staticfiles %}
+{% comment %}
+{% load ajaxRequest %}
+{% endcomment %}
+{% block title %}Imageset list{% endblock %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+<div class="row">
+    <a href="{% url 'imageset_add' %}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus">Add</span></a>
+</div>
+{% endif %}
+<div class="row">
+    <div class="table-responsive">
+    <table class="table table-striped" id="users">
+        <thead>
+	    <tr class="sortable">
+	        <th>
+                    ID
+	        </th>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Published
+                </th>
+                <th>
+                    Created at
+                </th>
+		{% if request.user.is_authenticated %}
+		<th>
+		    Actions
+		</th>
+		{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+	    {% for imageset in imagesets %}
+	    <tr>
+		<td>
+		    {{ imageset.pk }}
+		</td>
+		<td>
+		    <a href="{{ imageset.get_absolute_url }}">
+			{{ imageset.title }}
+		    </a>
+		</td>
+		<td>
+		    {% if request.user.is_authenticated and imageset.owner == request.user %}
+		    <a href="{{ imageset.get_publish_url }}" class="btn btn-xs 
+			{% if imageset.published %}
+			    btn-success
+			{% else %}
+			    btn-danger
+			{% endif %}
+		    ">
+		    {% else %}
+		    <span class="label 
+                        {% if imageset.published %}
+                            label-success
+                        {% else %}
+                            label-danger
+                        {% endif %}
+                    ">
+		    {% endif %}
+			<span class="glyphicon 
+			    {% if imageset.published %}
+				glyphicon-ok
+			    {% else %}
+				glyphicon-remove
+			    {% endif %}
+			">
+			</span>
+		    {% if request.user.is_authenticated and imageset.owner == request.user %}
+		    </a>
+		    {% else %}
+		    </span>
+		    {% endif %}
+		</td>
+		<td>
+		    {{ imageset.created_at }}
+		</td>
+		{% if request.user.is_authenticated and imageset.owner == request.user %}
+		<td>
+		    <a href="{{ imageset.get_edit_url }}" class="btn btn-xs btn-info">
+		        <span class="glyphicon glyphicon-pencil"></span>
+		    </a>
+		    <a href="{{ imageset.get_delete_url }}" class="btn btn-xs btn-danger">
+		        <span class="glyphicon glyphicon-remove"></span>
+		    </a>
+		    <a href="{{ imageset.get_image_list_url }}" class="btn btn-xs btn-default">
+		        <span class="glyphicon glyphicon-list"></span>
+		    </a>
+		</td>
+		{% else %}
+		<td>
+		</td>
+		{% endif %}
+	    </tr>
+	    {% endfor %}
+	</tbody>
+    </table>
+    </div>
+    <div class="pagination">
+	<span class="step-links">
+	    {% if imagesets.has_previous %}
+		<a href="../{{ imagesets.previous_page_number }}/">previous</a>
+		 | 
+	    {% endif %}
+
+	    <span class="current">
+		Page {{ imagesets.number }} of {{ imagesets.paginator.num_pages }}
+	    </span>
+
+	    {% if imagesets.has_next %}
+		 | 
+		<a href="../{{ imagesets.next_page_number }}/">next</a>
+	    {% endif %}
+	</span>
+    </div>
+</div>
+{% endblock %}
+
+
+{% comment %}
+<form enctype="multipart/form-data" method="post" action="{{image.get__url}}" class="form-horizontal">
+  <!--<div class="white_box">-->
+    {% csrf_token %}
+    {{ form|bootstrap_horizontal }}
+  <!--</div>-->
+  <div class="btn-margin btn-right">
+    <button type="submit" class="btn btn-success">Speichern</button>
+    <a href="javascript:history.back()" class="btn btn-danger"> Zurück </a>
+  </div>
+</form>
+
+{% endblock %}
+{% endcomment %}
