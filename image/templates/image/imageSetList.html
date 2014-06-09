@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% comment %}
 {% extends request.is_ajax|yesno:"baseAjax.html","base.html" %}
 {% endcomment %}
@@ -46,7 +46,7 @@
 		</td>
 		<td>
 		    <a href="{{ image.get_image_url }}">
-			{{ image.title }}
+                    {{ image.title }}
 		    </a>
 		</td>
 		<td>

@@ -7,6 +7,7 @@ from django.conf import settings
 from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
 from PIL import Image as PILImage
 
 from .models import *
@@ -16,6 +17,7 @@ import hashlib
 import uuid
 import datetime
 import os
+import shutil
 
 # Create your views here.
 
@@ -36,7 +38,43 @@ class ImageEditView(LoginRequiredMixin, UpdateView):
 	if(self.request.user.pk != int(self.kwargs.get('owner_id'))):
 	    raise Http404
 
-	image = form.save()
+	image = form.save(commit=False)
+        imageset = ImageSet.objects.get(imageset_id=self.kwargs.get('imageset_id'), owner=self.request.user)
+	dbimage = Image.objects.get(imageset_id=imageset.pk, owner=self.request.user, image=self.kwargs.get('image'))
+        if( image.imageset is not dbimage.imageset ):         
+	    oldfolderpath = os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(self.kwargs.get('imageset_id')), str(image.image))
+	    newfolderpath = os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.imageset_id), str(image.image))
+	    
+	    oldimagepath = oldfolderpath + "." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		shutil.move(oldimagepath, newimagepath)
+            oldimagepath = oldfolderpath + "_f." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "_f." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		os.rename(oldimagepath, newimagepath)
+	    oldimagepath = oldfolderpath + "_e." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "_e." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		os.rename(oldimagepath, newimagepath)
+	    oldimagepath = oldfolderpath + "_d." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "_d." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		os.rename(oldimagepath, newimagepath) 
+	    oldimagepath = oldfolderpath + "_c." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "_c." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		os.rename(oldimagepath, newimagepath) 
+	    oldimagepath = oldfolderpath + "_b." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "_b." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		os.rename(oldimagepath, newimagepath) 
+	    oldimagepath = oldfolderpath + "_a." + str(dbimage.image_type)
+	    newimagepath = newfolderpath + "_a." + str(dbimage.image_type)
+	    if( os.path.isfile(oldimagepath) ):
+		os.rename(oldimagepath, newimagepath)
+        image.save()
+
 	return HttpResponseRedirect(image.get_success_url())
 
 class ImagePublishView(LoginRequiredMixin, UpdateView):
@@ -54,7 +92,33 @@ class ImageDeleteView(LoginRequiredMixin, UpdateView):
 	if(self.request.user.pk != int(self.kwargs.get('owner_id'))):
 	    raise Http404
 	image = get_object_or_404(Image, pk=self.kwargs.get('image'), owner=self.request.user, imageset=str(self.request.user.pk) + '.' + str(self.kwargs.get('imageset_id')) )
-	image.delete()
+	
+	folderpath = os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.imageset_id), str(image.image))
+	    
+	imagepath = folderpath + "." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath)
+	imagepath = folderpath + "_f." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath)
+	imagepath = folderpath + "_e." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath)
+	imagepath = folderpath + "_d." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath) 
+	imagepath = folderpath + "_c." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath) 
+	imagepath = folderpath + "_b." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath) 
+	imagepath = folderpath + "_a." + str(image.image_type)
+	if( os.path.isfile(imagepath) ):
+	    os.remove(imagepath)
+
+
+        image.delete()
 
 	return HttpResponseRedirect(image.get_list_url())
 
@@ -81,7 +145,7 @@ class ImageUploadView(LoginRequiredMixin, CreateView):
 	imageuuid = uuid.uuid1(uuidinit)
 	ext = image_file.name.split('.')[-1]
 	filename = "%s.%s" % (imageuuid, ext)
-	filepath = os.path.join(settings.MEDIA_ROOT, str(user.pk), str(imageset.pk))
+	filepath = os.path.join(settings.MEDIA_ROOT, str(user.pk), str(imageset.imageset_id))
 	filepathname = os.path.join(filepath, filename)
 
 	if not os.path.exists(filepath):
@@ -151,13 +215,11 @@ class ImageView(DetailView):
 	if not (self.kwargs.get('thumbnail') is None):
 	    thumbnail = self.kwargs.get('thumbnail')
             image_thumbnail_path = image.image + "_" + thumbnail + "." + image.image_type
-	    if os.path.isfile(os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.pk), image_thumbnail_path)):
+	    if os.path.isfile(os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.imageset_id), image_thumbnail_path)):
 		image_path = image_thumbnail_path
 	    
-	image_data = open(os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.pk), image_path), "rb").read()
+	image_data = open(os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.imageset_id), image_path), "rb").read()
         return HttpResponse(image_data, content_type="image/" + image.image_type)
-
-#	return super(ImageView, self).get(self, request, *args, **kwargs)
 
 class RandomImageSetView(ListView):
     model = Image
@@ -170,7 +232,7 @@ class RandomImageSetView(ListView):
 	else:
 	    imageset = ImageSet.objects.filter(published=True).order_by('?')
 	if( not imageset):
-	    return HttpResponseRedirect(reverse('accounts_login'))
+	    return HttpResponseRedirect(request.build_absolute_uri(reverse('accounts_login')))
 	return redirect(imageset[0])
 	
 
@@ -178,6 +240,16 @@ class ImageSetView(ListView):
     model = Image
     context_object_name = 'images'
     template_name = 'image/imageSet.html'
+
+    def get(self, request, *args, **kwargs):
+        print request.is_ajax()
+        return super(ListView, self).get(request, *args, **kwargs)
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super(ImageSetView, self).render_to_response(context, **response_kwargs)
+        response['Access-Control-Allow-Origin'] = '*'
+        response['Access-Control-Allow-Methods'] = 'GET'
+        return response
 
     def get_context_data(self, **kwargs):
 	context = super(ImageSetView, self).get_context_data(**kwargs)
@@ -192,6 +264,9 @@ class ImageSetView(ListView):
             return Image.objects.filter(imageset=imageset).order_by('-created_at')
 
         return Image.objects.filter(imageset=imageset, published=True).order_by('-created_at')
+
+class ImageSetEmbeddedView(ImageSetView):
+    template_name = 'image/embed.html'
 
 class ImageSetsView(LoginRequiredMixin, ListView):
     model = ImageSet
@@ -271,34 +346,15 @@ class ImageSetDeleteView(LoginRequiredMixin, UpdateView):
 	if( int(self.kwargs.get('owner_id')) != self.request.user.pk ):
 	    raise Http404
 	imageset = get_object_or_404(ImageSet, imageset_id=self.kwargs.get('imageset_id'), owner=self.request.user)
+        imagesets = ImageSet.objects.filter(owner=self.request.user).count()
         images = Image.objects.filter(imageset=imageset)
-	for image in images:
-	    folderpath = os.path.join(settings.MEDIA_ROOT, str(image.owner.pk), str(image.imageset.pk), str(image.image))
-	    
-	    imagepath = folderpath + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath)
-	    imagepath = folderpath + "_f" + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath)
-	    imagepath = folderpath + "_e" + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath)
-	    imagepath = folderpath + "_d" + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath) 
-	    imagepath = folderpath + "_c" + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath) 
-	    imagepath = folderpath + "_b" + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath) 
-	    imagepath = folderpath + "_a" + str(image.type)
-	    if( os.path.isfile(imagepath) ):
-		os.remove(imagepath)
-	folderpath = os.path.join(settings.MEDIA_ROOT, str(imageset.owner.pk), str(imageset.pk))
+        if( imagesets <= 1):
+            messages.warning(self.request, "You can't delete your last imageset")
+	    return HttpResponseRedirect(imageset.get_list_url())
+	
+        folderpath = os.path.join(settings.MEDIA_ROOT, str(imageset.owner.pk), str(image.imageset.imageset_id))
 	if( os.path.isdir(folderpath) ):
-	    os.rmdir(folderpath)
+	    shutil.rmtree(folderpath)
 		
 	images.delete()
 	imageset.delete()
@@ -330,13 +386,10 @@ class ImageSetAddView(LoginRequiredMixin, CreateView):
 	imageset_id.imageset_id_seq = imageset_id.imageset_id_seq + 1
 	imageset_id.save()
 	
-	imageset.pk = imageset_id.imageset_id_seq
+	imageset.imageset_id = imageset_id.imageset_id_seq
 	imageset.owner = self.request.user
-
 	imageset.save()
 
-	os.mkdir(os.path.join(settings.MEDIA_ROOT, str(imageset.owner.pk), str(imageset.pk)))
-
-	#return super(CreateView, self).form_valid(form)
+	os.mkdir(os.path.join(settings.MEDIA_ROOT, str(imageset.owner.pk), str(imageset.imageset_id)))
 
 	return HttpResponseRedirect(imageset.get_upload_url())

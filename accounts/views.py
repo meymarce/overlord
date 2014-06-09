@@ -12,7 +12,7 @@ class MyLoginView(LoginView):
     template_name = 'accounts/login.html'
 
     def form_valid(self, form):
-	imageset_id, created = ImageSet_id_seq.objects.get_or_create(pk=form.get_user().pk, defaults={'imageset_id_seq': '1'})
+	imageset_id, created = ImageSet_id_seq.objects.get_or_create(pk=form.get_user().pk, defaults={'imageset_id_seq': 1})
 	imageset, created = ImageSet.objects.get_or_create(imageset_id=imageset_id.pk, defaults={'imageset_id': imageset_id.pk, 'owner': form.get_user()})
 	
 	dirpath = os.path.join(settings.MEDIA_ROOT, str(form.get_user().pk))

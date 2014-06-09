@@ -1,48 +1,3 @@
-function ajaxmodal(alink) {
-    var hrefid = "#" + alink.pathname.replace(/(\/)/g, "") + "_modal";
-
-    if ($(hrefid).length>0) {
-        $(hrefid).remove();
-    }
-
-    $.get(alink.href, function (data) {
-        $("body").append(data);
-        $(hrefid).modal();
-    });
-
-    return false;
-}
-
-function ajaxform(form) {
-    var action = $(form).attr("action");
-    var splittedurl = action.split("/");
-//    var divid = "#" + splittedurl.splice(0, splittedurl.length-3).join("");
-//    var divid = "#" + 
-    var hrefid = "#" + action.replace(/(\/)/g, "") + "_modal";
-
-//    $(form).submit(function() {
-
-        $.ajax({
-            data: $(form).serialize(),
-            type: $(form).attr('method'),
-            url: action,
-            success: function(data) {
-                $(divid).empty();
-                $(divid).html(data);
-		$(hrefid).modal('hide');
-            }
-        });
-        return false;
-
-//    });
-}
-
-function imagemodal(image) {
-    
-    
-    
-}
-
 function load_fitting_image(link) {
     img = $($(link).children('img')[0]);
     a = $(link)[0];
@@ -80,9 +35,66 @@ function load_fitting_image(link) {
     }
 }
 
+//$(document).ready(function () {
+//
+//    $('.image > a').click(function(event) {
+//        event.preventDefault();
+//        showColorBox($(this).attr("href"));
+//    });
+//
+//});
+
+function embedImage(aimagelink) {
+    var id = $(aimagelink).attr('rel');
+
+    var anchor =$('<a>').attr({
+        class: 'cboxElement overlord',
+        rel: id,
+        style: 'display: none, visibility: hidden',
+        href: aimagelink.href
+    })
+
+    $('<img>').attr({
+        style: 'display: none',
+        src: load_fitting_image(aimagelink),
+        alt: $(aimagelink).children('img')[0].alt
+    }).appendTo(anchor);
+
+
+    $('body').append(anchor);
+}
+
+function embedColorBox() {
+    $('a.overlord').colorbox({rel: 'gal',
+        photo: true,
+        maxWidth: '100%',
+        maxHeight: '100%',
+        fixed: true,
+        title: function() {
+            return $($(this).children('img')[0]).attr('alt') + ' | <a href="' + $(this)[0].href + '">Source image</a>';
+        },
+        href: function() {
+            return load_fitting_image($(this)[0]);
+        },
+    });
+}
+
+function triggerImage(aimagelink) {
+    $('a[href="' + aimagelink.href + '"]').trigger( 'click' );
+}
+
+
+//function showColorBox(imageURL) {
+//    $.colorbox({ maxWidth: '100%',
+//                        maxHeight: '100%',
+//			photo: true,
+//                        fixed: true,
+//                        href: imageURL
+//    });
+//}
+
 
 function get_fitting_image_url(obj) {
-    console.log(obj);
     if( obj.width() > 1600 && obj.height() > 1200) {
 	return image_name + image_ext;
     } else if( obj.width() > 1400 && obj.height() > 1050) {

@@ -1,7 +1,4 @@
-{% extends 'base.html' %}
-{% comment %}
-{% extends request.is_ajax|yesno:"baseAjax.html","base.html" %}
-{% endcomment %}
+{% extends request.is_ajax|yesno:'baseAjax.html,base.html' %}
 
 {% load bootstrap %}
 {% load staticfiles %}
@@ -11,7 +8,7 @@
 {% block title %}Image Set{% endblock %}
 
 {% block content %}
-{% if request.user.is_authenticated and request.user == imageset.owner %}
+{% if request.user.is_authenticated and request.user == imageset.owner and not request.is_ajax %}
 <div class="row">
 	<a href="{{ imageset.get_upload_url }}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-cloud-upload">Upload</span></a>
 	<a href="{{ imageset.get_image_list_url }}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-list">List</span></a>
@@ -26,26 +23,31 @@
 	        <a href="{{ image.get_image_url }}" rel="gal" data-lightbox="gallery">
 	        <a class="cboxElement" href="{{ image.get_image_url }}" rel="gal[{{ forloop.counter }}]">
                 {% endcomment %}
-	        <a class="cboxElement" href="{{ image.get_image_url }}" rel="gal[{{ forloop.counter }}]">
-		    <img alt="{{ image.title }}{% if image.description %} - {{ image.description }}{% endif %}" class="img-responsive gallery" src="{{ image.get_image_thumbnail_url }}"></img>
-    	        </a>
-            </div>    
-	{% endfor %}
-    </div>
+		<a class="cboxElement" href="{{ image.get_image_url }}" rel="gal[{{ forloop.counter }}]">
+		{% comment %}
+                <img alt="{{ image.title }}{% if image.description %} - {{ image.description }}{% endif %}" class="img-responsive gallery" src="{{ request.build_absolute_uri }}{{ image.get_image_thumbnail_url }}"></img>
+		{% endcomment %}
+                <img alt="{{ image.title }}{% if image.description %} - {{ image.description }}{% endif %}" class="img-responsive gallery" src="//{{ request.get_host }}{{ image.get_image_thumbnail_url }}"></img>
+		</a>
+		</div>    
+{% endfor %}
+</div>
 </div>
 <script src="{% static 'js/salvattore.min.js' %}"></script>
 <script>
+{% if not request.is_ajax %}
 $('.image > a').colorbox({rel: 'gal',
-			    photo: true,
-			    maxWidth: '100%',
-			    maxHeight: '100%',
-			    fixed: true,
-			    title: function() {
-				return $($(this).children('img')[0]).attr('alt') + ' | <a href="' + $(this)[0].href + '">Source image</a>' {% if imageset.owner == request.user %} + ' | <a href="' + $(this)[0].href + 'edit/">Edit image</a>'{% endif %};
-			    },
-			    href: function() {
-				return load_fitting_image($(this)[0]);
-			    },
-			});
+photo: true,
+maxWidth: '100%',
+maxHeight: '100%',
+fixed: true,
+title: function() {
+return $($(this).children('img')[0]).attr('alt') + ' | <a href="' + $(this)[0].href + '">Source image</a>' {% if imageset.owner == request.user and not request.is_ajax %} + ' | <a href="' + $(this)[0].href + 'edit/">Edit image</a>'{% endif %};
+},
+href: function() {
+return load_fitting_image($(this)[0]);
+},
+});
+{% endif %}
 </script>
 {% endblock %}
