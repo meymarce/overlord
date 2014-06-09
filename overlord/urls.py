@@ -4,7 +4,6 @@ from django.conf import settings
 from django.views.generic.base import RedirectView
 
 from django.contrib import admin
-admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:

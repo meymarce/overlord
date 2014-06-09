@@ -104,9 +104,12 @@ var checker = 0;
 
 function doStuff() {
     clearInterval(checker);
-    var location_rev = parent.location.href.split("/");
+    var location_ = parent.location.href.split("/");
+    var location_rev = location_.reverse();
+    location_.pop();
     location_rev.pop();
-    var toLoad = "http://ishimura.server.haithun.com:8000/image/set/" + location_rev.pop() + "/" + location_rev.pop() + "/";
+    location_rev.pop();
+    var toLoad = "http://" + location_rev.pop() + "/image/set/" + location_.pop() + "/" + location_.pop() + "/";
 
     $("#overlord_embedded").load("http://ishimura.server.haithun.com:8000/image/set/2/2/", function() {
         $("#overlord_embedded > .imagerow > #images > .column > .image > a").each(  function() {
