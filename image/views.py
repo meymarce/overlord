@@ -389,7 +389,6 @@ class ImageSetAddView(LoginRequiredMixin, CreateView):
 	imageset.imageset_id = imageset_id.imageset_id_seq
 	imageset.owner = self.request.user
 	imageset.save()
-
 	os.mkdir(os.path.join(settings.MEDIA_ROOT, str(imageset.owner.pk), str(imageset.imageset_id)))
 
 	return HttpResponseRedirect(imageset.get_upload_url())
